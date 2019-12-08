@@ -9,4 +9,7 @@ jobs:
     - name: Build the Docker image
       run: |
         DOCKER_TAG="${GITHUB_REF_SLUG}-${GITHUB_SHA_SHORT}"
-        docker build . --file Dockerfile --tag takitake/spring-boot-demo:${DOCKER_TAG}
+        DOCKER_IMAGE="takitake/spring-boot-demo:${DOCKER_TAG}"
+        docker build . --file Dockerfile --tag ${DOCKER_IMAGE}
+        docker login -u takitake -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push ${DOCKER_IMAGE}
