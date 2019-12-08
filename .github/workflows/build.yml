@@ -5,5 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
+    - uses: rlespinasse/github-slug-action@1.1.0
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag takitake/spring-boot-demo:latest
+      run: |
+        DOCKER_TAG="${GITHUB_REF_SLUG}-${GITHUB_SHA_SHORT}"
+        docker build . --file Dockerfile --tag takitake/spring-boot-demo:${DOCKER_TAG}
