@@ -7,6 +7,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Promote the Docker image
+    - name: Debug
+      run: cat $GITHUB_EVENT_PATH
+    - name: Promote image
       run: |
-        cat $GITHUB_EVENT_PATH
+        FROM_REF=$(jq -r .pull_request.head.ref $GITHUB_EVENT_PATH | sed -r 's/[^a-zA-Z0-9]+/-/g' | tr -d '\n')
+        SHA=$(jq -r .pull_request.head.sha $GITHUB_EVENT_PATH | cut -c 1-8 | tr -d '\n')
+        TO_REF=$(jq -r .pull_request.base.ref $GITHUB_EVENT_PATH | sed -r 's/[^a-zA-Z0-9]+/-/g' | tr -d '\n')
+        REPO=$(jq -r .pull_request.base.repo.name $GITHUB_EVENT_PATH | tr -d '\n')
+        FROM_IMAGE="takitake/${REPO}:${FROM_REF}-${SHA}"
+        TO_IMAGE="takitake/${REPO}:${TO_REF}-${SHA}"
+
+        echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username takitake --password-stdin
+        docker pull ${FROM_IMAGE}
+        docker tag ${FROM_IMAGE} ${TO_IMAGE}
+        docker push ${TO_IMAGE}
