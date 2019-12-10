@@ -9,4 +9,4 @@ jobs:
     steps:
     - name: Promote the Docker image
       run: |
-        env | sort
+        cat $GITHUB_EVENT_PATH
