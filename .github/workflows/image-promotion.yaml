@@ -1,0 +1,12 @@
+name: Docker Image Promotion
+on:
+  pull_request:
+    types:
+    - 'closed'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Promote the Docker image
+      run: |
+        env | sort

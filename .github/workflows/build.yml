@@ -1,9 +1,19 @@
 name: Docker Image CI
-on: [push]
+on:
+  push:
+    branches:
+    - '**'
+    - '!master'
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag takitake/spring-boot-demo:latest
+    - uses: rlespinasse/github-slug-action@1.1.0
+    - name: Build and Push the Docker image
+      run: |
+        DOCKER_TAG="${GITHUB_REF_SLUG}-${GITHUB_SHA_SHORT}"
+        DOCKER_IMAGE="takitake/spring-boot-demo:${DOCKER_TAG}"
+        docker build . --file Dockerfile --tag ${DOCKER_IMAGE}
+        echo ${{ secrets.DOCKER_PASSWORD }} | docker login --username takitake --password-stdin
+        docker push ${DOCKER_IMAGE}
